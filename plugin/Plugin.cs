@@ -15,7 +15,7 @@ namespace URAH_PluginManager
     /// plugins are not Workshop mods, so the game does not count as modded and achievements stay
     /// available; nothing here activates a mod, writes to the game folder's data or touches the
     /// achievement check. Plugins that come with a Workshop mod are never
-    /// listed. Plan: PLUGIN_MANAGER_PLAN.md of the knowledge workspace.
+    /// listed.
     ///
     /// Patching UIPreferences at load is safe: its only static field is a string constant.
     /// </summary>

@@ -18,8 +18,10 @@ namespace URAH_PluginManager
     /// fails the whole install before a byte is written: nothing unverified lands in BepInEx/plugins.
     ///
     /// Loaded DLLs can't be unloaded, and on Windows a mapped file can't be deleted or overwritten, only
-    /// renamed (Mono maps the DLL and closes the file, PLUGIN_MANAGER_PLAN.md "Open"). So a file is
-    /// replaced by writing &lt;file&gt;.new, renaming the old &lt;file&gt; to &lt;file&gt;.old and &lt;file&gt;.new to &lt;file&gt;.
+    /// renamed: BepInEx loads plugins with Assembly.LoadFile, and Unity's Mono (do_mono_image_open in
+    /// mono/metadata/image.c) opens the file with _wfopen, maps it and closes it again, so only a mapping
+    /// stays and no share mode blocks a rename. So a file is replaced by writing &lt;file&gt;.new, renaming
+    /// the old &lt;file&gt; to &lt;file&gt;.old and &lt;file&gt;.new to &lt;file&gt;.
     /// BepInEx only loads *.dll, the next start picks up the new one and Cleanup deletes the leftovers.
     /// Never an extension that starts with "dll" (Windows patterns let *.dll match .dllnew).
     /// </summary>

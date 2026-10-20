@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace URAH_PluginManager
 {
     /// <summary>
-    /// index.txt of URAH_koh2_releases (PLUGIN_MANAGER_PLAN.md, "Index"), signed by index.sig. UTF-8, LF,
+    /// index.txt of URAH_koh2_releases (written by the release workflow), signed by index.sig. UTF-8, LF,
     /// one record per line:
     ///   format 1
     ///   seq &lt;n&gt;
