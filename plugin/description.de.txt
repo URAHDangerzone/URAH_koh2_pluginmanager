@@ -1,0 +1,1 @@
+Fügt "Plugins (URAH)" zu den Einstellungen des Spiels hinzu: die eigenständigen URAH-Plugins an- und ausschalten, installieren, aktualisieren und entfernen.
