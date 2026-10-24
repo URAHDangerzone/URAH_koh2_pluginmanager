@@ -38,6 +38,10 @@ namespace URAH_PluginManager
             ["build"] = "built for game {0}, you run {1}",
             ["not_installed"] = "not installed",
             ["removed_short"] = "removed",
+            ["config"] = "Settings",
+            ["config_tip"] = "Change the settings of {0}",
+            ["config_title"] = "{0}: settings",
+            ["close"] = "Close",
         };
 
         private static readonly Dictionary<string, string> De = new Dictionary<string, string>
@@ -73,6 +77,10 @@ namespace URAH_PluginManager
             ["build"] = "für Spielversion {0} gebaut, du hast {1}",
             ["not_installed"] = "nicht installiert",
             ["removed_short"] = "entfernt",
+            ["config"] = "Einstellungen",
+            ["config_tip"] = "Einstellungen von {0} ändern",
+            ["config_title"] = "{0}: Einstellungen",
+            ["close"] = "Schließen",
         };
 
         public static string Get(string key)

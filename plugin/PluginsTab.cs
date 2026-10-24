@@ -18,6 +18,7 @@ namespace URAH_PluginManager
     /// does not deselect it: a postfix does. Rows (a status line from the label prefab, then one row per
     /// plugin from the Mods tab's row prefab) go into m_ActivePreferences, so the next tab switch destroys
     /// them; they have no setting, so Apply Changes and Revert Defaults ignore them. Toggles act at once.
+    /// A plugin with settings gets a "Settings" button that opens them in a popup (ConfigPopup).
     /// </summary>
     internal static class PluginsTab
     {
@@ -199,6 +200,14 @@ namespace URAH_PluginManager
         }
 
         /// <summary>Rows again from the current state, if our tab is still the one shown.</summary>
+        internal static void ShowSettings(Entry entry)
+        {
+            if (shown != null && !Locked())
+            {
+                ConfigPopup.Show(shown, entry, categoryContent(shown));
+            }
+        }
+
         internal static void Refresh()
         {
             UIPreferences window = shown;
@@ -287,6 +296,7 @@ namespace URAH_PluginManager
                 }
                 if (selectedCategory(__instance) != tab)
                 {
+                    ConfigPopup.Close();
                     tab.Select(selected: false);
                     RestoreSpacing();
                 }
@@ -426,7 +436,7 @@ namespace URAH_PluginManager
         protected GameObject m_InvalidMod;
 
         private Entry entry;
-        private BSGButton action, update;
+        private BSGButton action, update, settings;
         private float laidOutHeight = -1f;
         private bool spaced;
 
@@ -437,6 +447,7 @@ namespace URAH_PluginManager
             def = Defs.GetDefField("Preferences", "Preference");
             action = AddButton("URAH_Action", OnAction);
             update = AddButton("URAH_Update", b => PluginsTab.Install(entry));
+            settings = AddTextButton("URAH_Settings", Texts.Get("config"), b => PluginsTab.ShowSettings(entry));
             Populate();
         }
 
@@ -497,6 +508,33 @@ namespace URAH_PluginManager
             return b;
         }
 
+        /// <summary>A copy of the window's button that keeps its text, sized to it in LateUpdate.</summary>
+        private BSGButton AddTextButton(string name, string text, BSGButton.OnClick onClick)
+        {
+            BSGButton template = PluginsTab.ButtonTemplate;
+            if (template == null)
+            {
+                return null;
+            }
+            BSGButton b = Object.Instantiate(template, transform, worldPositionStays: false);
+            b.name = name;
+            b.onClick = onClick;
+            LayoutElement element = b.gameObject.GetComponent<LayoutElement>();
+            (element != null ? element : b.gameObject.AddComponent<LayoutElement>()).ignoreLayout = true;
+            var rt = (RectTransform)b.transform;
+            rt.anchorMin = new Vector2(1f, 0f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(1f, 0.5f);
+            TextMeshProUGUI label = b.GetComponentInChildren<TextMeshProUGUI>(includeInactive: true);
+            if (label != null)
+            {
+                label.gameObject.SetActive(true);
+                UIText.SetText(label, text);
+            }
+            b.gameObject.SetActive(true);
+            return b;
+        }
+
         private static void SetIcon(BSGButton b, Sprite sprite)
         {
             Transform icon = b != null ? b.transform.Find("URAH_Icon") : null;
@@ -524,6 +562,7 @@ namespace URAH_PluginManager
             float margin = ToggleMargin(row);
             Place(action, 0, side, margin);
             Place(update, 1, side, margin);
+            PlaceText(settings, (action != null && action.gameObject.activeSelf ? 1 : 0) + (update != null && update.gameObject.activeSelf ? 1 : 0), side, h, margin);
             if (!spaced)
             {
                 spaced = true;
@@ -539,6 +578,20 @@ namespace URAH_PluginManager
                 rt.sizeDelta = new Vector2(side, -4f);
                 rt.anchoredPosition = new Vector2(-margin - slot * (side + Gap), 0f);
             }
+        }
+
+        /// <summary>Left of the first free icon slots, as wide as its text plus a margin.</summary>
+        private static void PlaceText(BSGButton b, int slots, float side, float h, float margin)
+        {
+            if (b == null)
+            {
+                return;
+            }
+            TextMeshProUGUI label = b.GetComponentInChildren<TextMeshProUGUI>();
+            float width = label != null ? label.GetPreferredValues(label.text, 1000f, h).x + h : side * 3f;
+            var rt = (RectTransform)b.transform;
+            rt.sizeDelta = new Vector2(width, -4f);
+            rt.anchoredPosition = new Vector2(-margin - slots * (side + Gap), 0f);
         }
 
         /// <summary>How far the toggle sits from the row's left edge: the buttons keep the same distance on the right.</summary>
@@ -562,7 +615,8 @@ namespace URAH_PluginManager
             float top = corners[1].y, bottom = corners[0].y, rowTop = top, rowBottom = bottom;
             foreach (Image image in GetComponentsInChildren<Image>())
             {
-                if ((action != null && image.transform.IsChildOf(action.transform)) || (update != null && image.transform.IsChildOf(update.transform)))
+                if ((action != null && image.transform.IsChildOf(action.transform)) || (update != null && image.transform.IsChildOf(update.transform))
+                    || (settings != null && image.transform.IsChildOf(settings.transform)))
                 {
                     continue;
                 }
@@ -692,6 +746,13 @@ namespace URAH_PluginManager
                 string blocked = ActionBlocked(!install);
                 action.Enable(blocked == null);
                 SetTooltip(action.gameObject, blocked ?? Texts.Get(install ? "install" : "remove"));
+            }
+            if (settings != null)
+            {
+                settings.gameObject.SetActive(ConfigRows.Editable(entry).Count > 0);
+                settings.Enable(!PluginsTab.Locked());
+                SetTooltip(settings.gameObject, PluginsTab.Locked() ? Texts.Get("locked") : string.Format(Texts.Get("config_tip"), entry.Name));
+                laidOutHeight = -1f; // the icon slots left of which it sits may have changed
             }
             if (update != null)
             {

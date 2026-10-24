@@ -133,6 +133,7 @@ namespace URAH_PluginManager
             new KeyValuePair<string, bool>("urah.koh2.net", false),
             new KeyValuePair<string, bool>("urah.koh2.hover", false),
             new KeyValuePair<string, bool>("urah.koh2.questlinks", false),
+            new KeyValuePair<string, bool>("urah.koh2.startpaused", false),
             new KeyValuePair<string, bool>("urah.koh2.loader", true),
             new KeyValuePair<string, bool>(Plugin.Guid, true),
         };

@@ -2,9 +2,12 @@
 
 A BepInEx 5 plugin for **Knights of Honor II: Sovereign** that adds the tab **Plugins (URAH)** to the
 game's Settings window, laid out like Settings → Mods. It lists the standalone URAH plugins (URAH_Net,
-URAH_Hover, URAH_Loader and itself), switches them on and off without a restart, and installs, updates
-and removes them. Needs no mod and works in vanilla; achievements stay available.
+URAH_Hover, URAH_StartPaused, URAH_Loader and itself), switches them on and off without a restart,
+changes their settings, and installs, updates and removes them. Needs no mod and works in vanilla; achievements stay available.
 
+- **Settings** opens a plugin's settings in a popup: on/off entries as toggles, numbers with a range as
+  sliders, from its `BepInEx/config/<guid>.cfg`. A change is saved at once; whether it acts at once is
+  up to the plugin.
 - The toggle flips the plugin's `[General] Enabled` entry in its `BepInEx/config/<guid>.cfg` and takes
   effect at once. A plugin version without that entry shows "restart required".
 - **Fetch plugins** loads the list of URAH plugins from
